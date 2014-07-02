@@ -262,6 +262,7 @@ from sympy.solvers import solve
 from sympy.utilities import numbered_symbols, default_sort_key, sift
 from sympy.solvers.deutils import _preprocess, ode_order, _desolve
 
+i_debug = 0
 #: This is a list of hints in the order that they should be preferred by
 #: :py:meth:`~sympy.solvers.ode.classify_ode`. In general, hints earlier in the
 #: list should produce simpler solutions than those later in the list (for
@@ -569,10 +570,30 @@ def dsolve(eq, func=None, hint="default", simplify=True,
         given_hint = hint  # hint given by the user
 
         # See the docstring of _desolve for more details.
-        hints = _desolve(eq, func=func,
-            hint=hint, simplify=True, xi=xi, eta=eta, type='ode', ics=ics,
-            x0=x0, n=n, **kwargs)
+        try:
+            from sys import stderr
+            global i_debug
+            print("\nNew Test {}".format(i_debug), file=stderr, flush=True)
+            i_debug += 1
+            hints = _desolve(eq, func=func,
+                    hint=hint, simplify=True, xi=xi, eta=eta, type='ode', ics=ics,
+                    x0=x0, n=n, **kwargs)
+        except:
 
+            print('******* top level ******', file=stderr)
+            print('args to _desolve ', file=stderr)
+            print('eq', eq, file=stderr)
+            print('func',func, file=stderr)
+            print('hint', hint, file=stderr)
+            print('simplify', True, file=stderr)
+            print('xi', xi, file=stderr)
+            print('eta', eta, file=stderr)
+            print('type', 'ode', file=stderr)
+            print('ics', ics, file=stderr)
+            print('x0', x0, file=stderr)
+            print('n', n, file=stderr)
+            print('kwargs', kwargs, flush=True, file=stderr)
+            raise
         eq = hints.pop('eq', eq)
         all_ = hints.pop('all', False)
         if all_:
@@ -857,6 +878,8 @@ def classify_ode(eq, func=None, dict=False, ics=None, **kwargs):
     if not reduced_eq:
         reduced_eq = eq
 
+    from sys import stderr
+    print('reduced_eq', reduced_eq, file=stderr)
     if order == 1:
 
         ## Linear case: a(x)*y'+b(x)*y+c(x) == 0
@@ -900,7 +923,10 @@ def classify_ode(eq, func=None, dict=False, ics=None, **kwargs):
             matching_hints["Riccati_special_minus2"] = r
 
         # NON-REDUCED FORM OF EQUATION matches
+        print('args to collect, ', eq, df, True, file=stderr)
         r = collect(eq, df, exact=True).match(d + e * df)
+        print('result of collect', collect(eq, df, exact=True), file=stderr)
+        print('r for power series', r, file=stderr)
         if r:
             r['d'] = d
             r['e'] = e

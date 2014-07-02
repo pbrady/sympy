@@ -36,6 +36,8 @@ from sympy.polys import (Poly, together, reduced, cancel, factor,
 
 import sympy.mpmath as mpmath
 
+i_debug = 0
+
 
 def _mexpand(expr):
     return expand_mul(expand_multinomial(expr))
@@ -473,8 +475,15 @@ def collect(expr, syms, func=None, evaluate=None, exact=False, distribute_order_
                 order_term = None
             else:
                 expr = expr.removeO()
-
+    from sys import stderr
+    global i_debug
     summa = [expand_power_base(i, deep=False) for i in Add.make_args(expr)]
+    print('simplify... {}'.format(i_debug), file=stderr)
+    print('expr', expr, file=stderr)
+    print('order_term', order_term, file=stderr)
+    print('summa', summa, file=stderr)
+    i_debug += 1
+    
 
     collected, disliked = defaultdict(list), S.Zero
     for product in summa:

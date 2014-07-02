@@ -221,6 +221,8 @@ def _desolve(eq, func=None, hint="default", ics=None, simplify=True, **kwargs):
                            {'default': hint,
                             hint: kwargs['match'],
                             'order': kwargs['order']})
+    from sys import stderr
+    #print('\n\nhints', hints, file=stderr, flush=True)
     if hints['order'] == 0:
         raise ValueError(
             str(eq) + " is not a differential equation in " + str(func))
