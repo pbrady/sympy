@@ -1168,7 +1168,16 @@ class SymPyDocTests(object):
         if not tests:
             return
         self._reporter.entering_filename(filename, len(tests))
-        for test in tests:
+        blacklist = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
+        blacklist += [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        blacklist += [17, 18, 19, 20, 21]
+        blacklist += [22, 23]
+        blacklist += [14, 15, 16]
+        blacklist += [13]
+        blacklist += [11]
+        for ii, test in enumerate(tests):
+            if ii in blacklist:
+                continue
             assert len(test.examples) != 0
 
             # check if there are external dependencies which need to be met
@@ -1181,6 +1190,7 @@ class SymPyDocTests(object):
                     pdoctest.NORMALIZE_WHITESPACE |
                     pdoctest.IGNORE_EXCEPTION_DETAIL)
             runner._checker = SymPyOutputChecker()
+            print("\nRunning:", ii, test.name)
             old = sys.stdout
             new = StringIO()
             sys.stdout = new
