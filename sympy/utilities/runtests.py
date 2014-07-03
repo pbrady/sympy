@@ -1168,7 +1168,7 @@ class SymPyDocTests(object):
         if not tests:
             return
         self._reporter.entering_filename(filename, len(tests))
-        blacklist = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
+        blacklist = list(range(25,40))
         blacklist += [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         blacklist += [17, 18, 19, 20, 21]
         blacklist += [22, 23]

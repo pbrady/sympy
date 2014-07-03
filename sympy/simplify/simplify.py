@@ -287,7 +287,13 @@ def collect(expr, syms, func=None, evaluate=None, exact=False, distribute_order_
     """
     if evaluate is None:
         evaluate = global_evaluate[0]
+    from sys import stderr
+    global i_debug
+    pdbg = i_debug >= 289 and i_debug <= 291
 
+    if pdbg:
+        print('collect... {}'.format(i_debug), file=stderr)
+        print('called with syms=',syms, file=stderr)
     def make_expression(terms):
         product = []
 
@@ -377,20 +383,29 @@ def collect(expr, syms, func=None, evaluate=None, exact=False, distribute_order_
 
         return sexpr, rat_expo, sym_expo, deriv
 
-    def parse_expression(terms, pattern):
+    def parse_expression(terms, pattern, pdbg=False):
         """Parse terms searching for a pattern.
         terms is a list of tuples as returned by parse_terms;
         pattern is an expression treated as a product of factors
         """
+        if pdbg:
+            print('parse_expression', file=stderr)
+            print('terms in', terms, file=stderr)
+            print('patter in', pattern, file=stderr)
         pattern = Mul.make_args(pattern)
-
+        if pdbg:
+            print('pattern', pattern, file=stderr)
+            
         if len(terms) < len(pattern):
             # pattern is longer than matched product
             # so no chance for positive parsing result
+            if pdbg:
+                print('len(terms) < len(pattern)', file=stderr)
             return None
         else:
             pattern = [parse_term(elem) for elem in pattern]
-
+            if pdbg:
+                print('pattern after parse_term: ', pattern, file=stderr)
             terms = terms[:]  # need a copy
             elems, common_expo, has_deriv = [], None, False
 
@@ -475,28 +490,33 @@ def collect(expr, syms, func=None, evaluate=None, exact=False, distribute_order_
                 order_term = None
             else:
                 expr = expr.removeO()
-    from sys import stderr
-    global i_debug
+
     summa = [expand_power_base(i, deep=False) for i in Add.make_args(expr)]
-    print('simplify... {}'.format(i_debug), file=stderr)
-    print('expr', expr, file=stderr)
-    print('order_term', order_term, file=stderr)
-    print('summa', summa, file=stderr)
-    i_debug += 1
-    
+
+    if pdbg:
+        print('simplify... {}'.format(i_debug), file=stderr)
+        print('expr', expr, file=stderr)
+        print('order_term', order_term, file=stderr)
+        print('summa', summa, file=stderr)
+        print('syms', syms, file=stderr)
+    i_debug += 1    
 
     collected, disliked = defaultdict(list), S.Zero
     for product in summa:
         terms = [parse_term(i) for i in Mul.make_args(product)]
-
+        if pdbg :
+            print('terms', file=stderr)
         for symbol in syms:
+            if pdbg : 
+                print('symbol', symbol, file=stderr)
             if SYMPY_DEBUG:
                 print("DEBUG: parsing of expression %s with symbol %s " % (
                     str(terms), str(symbol))
                 )
 
-            result = parse_expression(terms, symbol)
-
+            result = parse_expression(terms, symbol, pdbg)
+            if pdbg: 
+                print('result', result, file=stderr)
             if SYMPY_DEBUG:
                 print("DEBUG: returned %s" % str(result))
 
