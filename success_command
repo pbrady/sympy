@@ -1,0 +1,1 @@
+PYTHONHASHSEED=2683532965 SYMPY_CACHE_SIZE=None bin/test --seed 11506336 sympy/solvers/tests/test_ode.py -k test_nonlinear_2eq

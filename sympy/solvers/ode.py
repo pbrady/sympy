@@ -1657,24 +1657,28 @@ def check_nonlinear_2eq_order1(eq, func, func_coef):
     g = Wild('g')
     r1 = eq[0].match(t*diff(x(t),t) - x(t) + f)
     print('\nEntering check_nonlinear_2eq_order1')
-    print('eq[0].match(t*diff(x(t),t) - x(t) + f): ', r1)
+    from inspect import currentframe
+    cf = currentframe()
+    #print(cf.f_lineno, 'eq[0].match(t*diff(x(t),t) - x(t) + f): ', r1)
     r2 = eq[1].match(t*diff(y(t),t) - y(t) + g)
-    print('eq[1].match(t*diff(y(t),t) - y(t) + g): ', r2)
+    #print(cf.f_lineno, 'eq[1].match(t*diff(y(t),t) - y(t) + g): ', r2)
     if not (r1 and r2):
         r1 = eq[0].match(diff(x(t),t) - x(t)/t + f/t)
-        print('eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
+        #print(cf.f_lineno, 'eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
         r2 = eq[1].match(diff(y(t),t) - y(t)/t + g/t)
-        print('eq[1].match(diff(y(t),t) - y(t)/t + g/t)', r2)
+        #print(cf.f_lineno, 'eq[1].match(diff(y(t),t) - y(t)/t + g/t)', r2)
     if not (r1 and r2):
+        print('-eq[0]', -eq[0])
+        print('type(-eq[0])', type(-eq[0]))
         r1 = (-eq[0]).match(t*diff(x(t),t) - x(t) + f)
-        print('(-eq[0]).match(t*diff(x(t),t) - x(t) + f): ', r1)
+        print(cf.f_lineno, '(-eq[0]).match(t*diff(x(t),t) - x(t) + f): ', r1)
         r2 = (-eq[1]).match(t*diff(y(t),t) - y(t) + g)
-        print('(-eq[1]).match(t*diff(y(t),t) - y(t) + g): ', r2)
+        print(cf.f_lineno, '(-eq[1]).match(t*diff(y(t),t) - y(t) + g): ', r2)
     if not (r1 and r2):
         r1 = eq[0].match(diff(x(t),t) - x(t)/t + f/t)
-        print('eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
+        #print(cf.f_lineno, 'eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
         r2 = eq[1].match(diff(y(t),t) - y(t)/t + g/t)
-        print('eq[1].match(diff(y(t),t) - y(t)/t + g/t): ', r2)
+        #print(cf.f_lineno, 'eq[1].match(diff(y(t),t) - y(t)/t + g/t): ', r2)
     if r1 and r2 and not (r1[f].subs(diff(x(t),t),u).subs(diff(y(t),t),v).has(t) \
     or r2[g].subs(diff(x(t),t),u).subs(diff(y(t),t),v).has(t)):
         print('return type5')
