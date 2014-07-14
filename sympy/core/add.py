@@ -363,9 +363,12 @@ class Add(Expr, AssocOp):
         return
 
     def matches(self, expr, repl_dict={}, old=False):
-        deb.cpi('matches', deb.main == 8, 
-                "Add matches called with self, expr, repl_dict, old",
-                self, expr, repl_dict, old)
+        deb.cpi('main', 'matches',
+                "Add matches called with:",
+                '\nself: ', self,
+                '\nexpr: ', expr,
+                '\nrepl_dict', repl_dict,
+                '\nold', old)
         return AssocOp._matches_commutative(self, expr, repl_dict, old)
 
     @staticmethod

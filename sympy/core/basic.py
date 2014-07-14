@@ -9,7 +9,7 @@ from sympy.core.compatibility import (reduce, iterable, Iterator, ordered,
     string_types, with_metaclass, zip_longest)
 from sympy.core.decorators import deprecated
 from sympy.core.singleton import S
-
+from sympy.core.debugger import deb
 from inspect import getmro
 
 class Basic(with_metaclass(ManagedProperties)):
@@ -1475,6 +1475,10 @@ class Basic(with_metaclass(ManagedProperties)):
         {p_: 2/x**2}
 
         """
+        deb.cpi('main', 'basic', 'called with:',
+                '\nself: ', self,
+                '\npattern: ', pattern,
+                '\nold: ', old)
         from sympy import signsimp
         pattern = sympify(pattern)
         s = signsimp(self)
@@ -1482,9 +1486,23 @@ class Basic(with_metaclass(ManagedProperties)):
         # if we still have the same relationship between the types of
         # input, then use the sign simplified forms
         if (pattern.func == self.func) and (s.func == p.func):
+            deb.cpi('main', 'basic', 'calling p.matches:',
+                    '\npattern: ', pattern,
+                    '\np: ', p,
+                    '\ns: ', s,
+                    '\nold: ', old)
             rv = p.matches(s, old=old)
+            deb.cpi('main', 'basic', 'return of p.matches:',
+                    '\nrv: ', rv)
         else:
+            deb.cpi('main', 'basic', 'calling pattern.matches:',
+                    '\npattern: ', pattern,
+                    '\np: ', p,
+                    '\ns: ', s,
+                    '\nold: ', old)
             rv = pattern.matches(self, old=old)
+            deb.cpi('main', 'basic', 'return of pattern.matches:',
+                    '\nrv: ', rv)
         return rv
 
     def count_ops(self, visual=None):

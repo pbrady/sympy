@@ -7,7 +7,7 @@ from sympy.core.cache import cacheit
 from sympy.core.compatibility import ordered, xrange
 from sympy.core.logic import fuzzy_and
 from sympy.core.evaluate import global_evaluate
-
+from sympy.core.debugger import deb
 
 class AssocOp(Basic):
     """ Associative operations, can separate noncommutative and
@@ -162,16 +162,25 @@ class AssocOp(Basic):
         equivalent.
 
         """
+        deb.cpi('main', 'comm', '_mathes_commutative called with'
+                'self, expr, repl_dict, old',
+                self, expr, repl_dict, old)
         # make sure expr is Expr if pattern is Expr
         from .expr import Expr
+        deb.cpi('main', 'comm', 'isinstance(self, Expr): ',
+                isinstance(self, Expr),
+                'not isintance(expr, Expr): ', not isinstance(expr,Expr))
         if isinstance(self, Expr) and not isinstance(expr, Expr):
+            deb.cpi('main', 'comm', 'returning None from instance check')
             return None
 
         # handle simple patterns
         if self == expr:
+            deb.cpi('main', 'comm', self, '==', expr)
             return repl_dict
 
         d = self._matches_simple(expr, repl_dict)
+        deb.cpi('main', 'comm', 'self.matches_simple', d)
         if d is not None:
             return d
 
@@ -187,7 +196,8 @@ class AssocOp(Basic):
                 wild_part.append(p)
             else:
                 exact_part.append(p)
-
+        deb.cpi('main', 'comm', 'wild_part', wild_part)
+        deb.cpi('main', 'comm', 'exact_part', exact_part)
         if exact_part:
             exact = self.func(*exact_part)
             free = expr.free_symbols
@@ -195,12 +205,16 @@ class AssocOp(Basic):
                 # there are symbols in the exact part that are not
                 # in the expr; but if there are no free symbols, let
                 # the matching continue
+                deb.cpi('main', 'comm', 'returning None')
                 return None
             newpattern = self.func(*wild_part)
             newexpr = self._combine_inverse(expr, exact)
             if not old and (expr.is_Add or expr.is_Mul):
                 if newexpr.count_ops() > expr.count_ops():
+                    deb.cpi('main', 'comm', 'returning None')
                     return None
+            deb.cpi('main', 'comm', 'returning newmatches',
+                    newpattern.matches(newexpr, repl_dict))
             return newpattern.matches(newexpr, repl_dict)
 
         # now to real work ;)
@@ -215,6 +229,7 @@ class AssocOp(Basic):
                     if d1 is not None:
                         d2 = self.xreplace(d1).matches(expr, d1)
                         if d2 is not None:
+                            deb.cpi('main', 'comm', 'returning d2', d2)
                             return d2
 
             if i == 0:
@@ -254,7 +269,7 @@ class AssocOp(Basic):
                         continue
 
                 break  # if we didn't continue, there is nothing more to do
-
+        deb.cpi('main', 'comm', 'end of function return None')
         return
 
     def _has_matcher(self):

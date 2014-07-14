@@ -538,8 +538,17 @@ def dsolve(eq, func=None, hint="default", simplify=True,
     [f(x) == -acos(-sqrt(C1/cos(x)**2)) + 2*pi, f(x) == -acos(sqrt(C1/cos(x)**2)) + 2*pi,
     f(x) == acos(-sqrt(C1/cos(x)**2)), f(x) == acos(sqrt(C1/cos(x)**2))]
     """
+    deb.pi('dsolve', 'dsolve called with:',
+           '\neq: ',eq,
+           '\nfunc: ',func)
+    print('deb.dsolve', deb.dsolve)
+    deb.set_trigger('dsolve',deb.dsolve==8)
     if iterable(eq):
+        deb.cpi('dsolve','s', 'calling:',
+                '\nclassify_sysode(',eq,',',func,')')
         match = classify_sysode(eq, func)
+        deb.cpi('dsolve','s', 'result of classify_sysode:',
+               '\nmatch: ',match)
         eq = match['eq']
         order = match['order']
         func = match['func']
@@ -569,6 +578,7 @@ def dsolve(eq, func=None, hint="default", simplify=True,
             sols = solvefunc(match)
             return sols
     else:
+        deb.cpi('dsolve','s', 'not iterable')
         given_hint = hint  # hint given by the user
 
         # See the docstring of _desolve for more details.
@@ -1304,7 +1314,11 @@ def classify_sysode(eq, func=None, **kwargs):
         raise ValueError("classify_sysode() woks for systems of ODEs. For"
         " single ODE equation solving classify_ode should be used")
     t = list(list(eq[0].atoms(Derivative))[0].atoms(Symbol))[0]
-
+    deb.cpi('dsolve', 'classify',
+            '\neq: ', eq,
+            '\nfunc: ', func,
+            '\nt : ', t,
+            '\nmatching_hints: ', matching_hints)
     # find all the functions if not given
     order = dict()
     if func==[None]:
@@ -1316,6 +1330,11 @@ def classify_sysode(eq, func=None, **kwargs):
                 order[func_] = 0
                 func.append(func_)
     func = list(set(func))
+
+    deb.cpi('dsolve', 'classify',
+            '\norder: ', order,
+            '\nfunc: ', func)
+
     if len(func) < len(eq) and (func != [None]):
         raise ValueError("Number of functions given is less than number of equations %s" % func)
     for funcs in func:
@@ -1369,16 +1388,28 @@ def classify_sysode(eq, func=None, **kwargs):
     if len(set(order.values()))==1:
         order_eq = list(matching_hints['order'].values())[0]
         func = []
+        deb.cpi('dsolve', 'classify',
+                '\neq', eq,
+                '\norder_eq', order_eq)
         for eqs in eq:
             derivs = eqs.atoms(Derivative)
             funcs = set.union(*[d.atoms(AppliedUndef) for d in derivs])
+            deb.cpi('dsolve', 'classify',
+                    '\neqs: ', eqs,
+                    '\nfuncs: ', funcs)
             max_order = 0
             for fun in funcs:
                 order_ = ode_order(eqs, fun)
                 if order_ > max_order or (order_ == max_order and eqs.coeff(diff(fun, t, order_))!=0):
                     max_order = order_
                     func_ = fun
+                    deb.cpi('dsolve', 'classify',
+                            '\nmax_order', max_order,
+                            '\norder_', order_,
+                            '\nfunc_', func_)
             func.append(func_)
+        deb.cpi('dsolve', 'classify',
+                '\nfunc: ', func)
         matching_hints['func'] = func
         if matching_hints['is_linear'] == True:
             if matching_hints['no_of_equation'] == 2:
@@ -1645,6 +1676,9 @@ def check_linear_neq_order1(eq, func, func_coef):
     return 'type1'
 
 def check_nonlinear_2eq_order1(eq, func, func_coef):
+    deb.pi('s', 'entering check_nonlinear_2eq_order1',
+           '\neq: ',eq,
+           '\nfunc: ', func)
     x = func[0].func
     y = func[1].func
     fc = func_coef
@@ -1658,25 +1692,27 @@ def check_nonlinear_2eq_order1(eq, func, func_coef):
     g2 = Wild('g2', exclude=[u,t])
     g = Wild('g')
     r1 = eq[0].match(t*diff(x(t),t) - x(t) + f)
-    print('\nEntering check_nonlinear_2eq_order1')
-    from inspect import currentframe
-    cf = currentframe()
-    #print(cf.f_lineno, 'eq[0].match(t*diff(x(t),t) - x(t) + f): ', r1)
     r2 = eq[1].match(t*diff(y(t),t) - y(t) + g)
-    #print(cf.f_lineno, 'eq[1].match(t*diff(y(t),t) - y(t) + g): ', r2)
     if not (r1 and r2):
         r1 = eq[0].match(diff(x(t),t) - x(t)/t + f/t)
-        #print(cf.f_lineno, 'eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
         r2 = eq[1].match(diff(y(t),t) - y(t)/t + g/t)
-        #print(cf.f_lineno, 'eq[1].match(diff(y(t),t) - y(t)/t + g/t)', r2)
     if not (r1 and r2):
         deb.pi('s', '-eq[0]', -eq[0])
         deb.pi('s', 'type(-eq[0])', type(-eq[0]))
-        deb.pi('s', 'about to execute', 
+        deb.pi('s', 'about to execute',
                '(-eq[0]).match(t*diff(x(t),t) - x(t) + f)',
                'with main={}'.format(deb.main))
+
+        deb.cpi('main', 's',
+                '\n-eq[0]: ', -eq[0],
+                '\nt: ', t,
+                '\nx(t): ', x(t),
+                '\nf: ', f,
+                '\npat: ', t*diff(x(t),t) - x(t) + f)
+        deb.set_trigger('main', deb.main==8)
         r1 = (-eq[0]).match(t*diff(x(t),t) - x(t) + f)
         deb.pi('main', '(-eq[0]).match(t*diff(x(t),t) - x(t) + f): ', r1)
+        deb.set_trigger('main', deb.main==8)
         r2 = (-eq[1]).match(t*diff(y(t),t) - y(t) + g)
         deb.pi('main', '(-eq[1]).match(t*diff(y(t),t) - y(t) + g): ', r2)
     if not (r1 and r2):
