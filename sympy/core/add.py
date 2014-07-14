@@ -9,7 +9,7 @@ from sympy.core.operations import AssocOp
 from sympy.core.cache import cacheit
 from sympy.core.numbers import ilcm, igcd
 from sympy.core.expr import Expr
-
+from sympy.core.debugger import deb
 
 # Key for sorting commutative args in canonical order
 _args_sortkey = cmp_to_key(Basic.compare)
@@ -363,6 +363,9 @@ class Add(Expr, AssocOp):
         return
 
     def matches(self, expr, repl_dict={}, old=False):
+        deb.cpi('matches', deb.main == 8, 
+                "Add matches called with self, expr, repl_dict, old",
+                self, expr, repl_dict, old)
         return AssocOp._matches_commutative(self, expr, repl_dict, old)
 
     @staticmethod

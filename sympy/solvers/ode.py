@@ -262,6 +262,8 @@ from sympy.solvers import solve
 from sympy.utilities import numbered_symbols, default_sort_key, sift
 from sympy.solvers.deutils import _preprocess, ode_order, _desolve
 
+from sympy.core.debugger import deb
+
 #: This is a list of hints in the order that they should be preferred by
 #: :py:meth:`~sympy.solvers.ode.classify_ode`. In general, hints earlier in the
 #: list should produce simpler solutions than those later in the list (for
@@ -1668,12 +1670,15 @@ def check_nonlinear_2eq_order1(eq, func, func_coef):
         r2 = eq[1].match(diff(y(t),t) - y(t)/t + g/t)
         #print(cf.f_lineno, 'eq[1].match(diff(y(t),t) - y(t)/t + g/t)', r2)
     if not (r1 and r2):
-        print('-eq[0]', -eq[0])
-        print('type(-eq[0])', type(-eq[0]))
+        deb.pi('s', '-eq[0]', -eq[0])
+        deb.pi('s', 'type(-eq[0])', type(-eq[0]))
+        deb.pi('s', 'about to execute', 
+               '(-eq[0]).match(t*diff(x(t),t) - x(t) + f)',
+               'with main={}'.format(deb.main))
         r1 = (-eq[0]).match(t*diff(x(t),t) - x(t) + f)
-        print(cf.f_lineno, '(-eq[0]).match(t*diff(x(t),t) - x(t) + f): ', r1)
+        deb.pi('main', '(-eq[0]).match(t*diff(x(t),t) - x(t) + f): ', r1)
         r2 = (-eq[1]).match(t*diff(y(t),t) - y(t) + g)
-        print(cf.f_lineno, '(-eq[1]).match(t*diff(y(t),t) - y(t) + g): ', r2)
+        deb.pi('main', '(-eq[1]).match(t*diff(y(t),t) - y(t) + g): ', r2)
     if not (r1 and r2):
         r1 = eq[0].match(diff(x(t),t) - x(t)/t + f/t)
         #print(cf.f_lineno, 'eq[0].match(diff(x(t),t) - x(t)/t + f/t): ', r1)
